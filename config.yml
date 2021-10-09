@@ -1,0 +1,3 @@
+# %npc - name of the NPC
+# %quest - name of the quest (maximum 1)
+quest_can_be_completed: '&6You can complete the quest %quest&6! %npc &6is waiting for you!'
