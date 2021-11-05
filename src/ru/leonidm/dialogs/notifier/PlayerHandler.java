@@ -1,6 +1,7 @@
 package ru.leonidm.dialogs.notifier;
 
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import ru.leonidm.dialogs.api.events.DialogAddEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -10,6 +11,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import ru.leonidm.dialogs.api.events.PlayerKilledQuestEntityEvent;
 
 public class PlayerHandler implements Listener {
     
@@ -17,23 +19,23 @@ public class PlayerHandler implements Listener {
     public void onPickup(EntityPickupItemEvent e) {
         LivingEntity entity = e.getEntity();
         if(entity instanceof Player player) {
-            DialogsEventsHandler.checkQuests(player);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    DialogsEventsHandler.checkQuests(player);
+                }
+            }.runTaskLater(QuestsNotifier.getInstance(), 1);
         }
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPickup(InventoryCloseEvent e) {
-        DialogsEventsHandler.checkQuests((Player)e.getPlayer());
+        DialogsEventsHandler.checkQuests((Player) e.getPlayer());
     }
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onKill(EntityDamageByEntityEvent e) {
-        if(!(e.getDamager() instanceof Player player)) return;
-        if(!(e.getEntity() instanceof LivingEntity entity)) return;
-
-        if(entity.getHealth() - e.getDamage() <= 0.0) {
-            DialogsEventsHandler.checkQuests(player);
-        }
+    public void onKill(PlayerKilledQuestEntityEvent e) {
+        DialogsEventsHandler.checkQuests(e.getPlayer());
     }
     
     @EventHandler
